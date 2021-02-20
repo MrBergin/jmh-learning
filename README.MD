@@ -1,6 +1,14 @@
 # JMH Playground
 
-## Why?
+## Heads up
+
+[This article](https://shipilev.net/blog/2014/exceptional-performance/#_conclusion) is fantastic and does a great job of
+analysing exception performance, even if I didn't fully understand it. After reading, I realise my benchmarks here are
+testing the special case of "100% failure" i.e. every single call I make takes the `Exception` path. Benchmarking a
+lower frequency of failures can result in better performance for throwing exceptions versus `flags` (or in my
+case, `Either`)
+
+## What is this project?
 
 I've never had the chance to play around with JMH before, but always wanted to try something with it. In addition to
 this, I was always taught that exceptions as control flow are bad because:
@@ -92,4 +100,3 @@ In addition to this, my test case for Either vs Exception is only a relative com
 benchmark that mimics a real world example (e.g. API calls with bad request bodies being handled with exceptions vs
 either)
 to see just how much this performance really matters (if it matters at all).
-
