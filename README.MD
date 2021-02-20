@@ -76,8 +76,8 @@ With that in mind, I wasn't really surprised about the results.
 
 * I have no confidence I truly know what I'm doing, but was pleased to see what I thought would happen, happened, the
   best case
-  `ExceptionsVsEitherBenchmark.benchmark_0depth_either_notfilledin` has nearly 100 times throughput as the worst case
-  `ExceptionsVsEitherBenchmark.benchmark_100depth_throws_filledin`
+  `benchmark_0depth_either_notfilledin` has nearly 100 times throughput as the worst case
+  `benchmark_100depth_throws_filledin`
 * Using Either consistently outperforms throwing
 * Avoiding filling in a stack trace has a significant improvement on throughput, especially for using Either
 * Increased stack depth doesn't impact Either too much, but has a significant impact on throwing an Exception. My guess
