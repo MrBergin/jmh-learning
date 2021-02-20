@@ -1,22 +1,15 @@
 # JMH Playground
 
-## Heads up
-
-[This article](https://shipilev.net/blog/2014/exceptional-performance/#_conclusion) is fantastic and does a great job of
-analysing exception performance, even if I didn't fully understand it. After reading, I realise my benchmarks here are
-testing the special case of "100% failure" i.e. every single call I make takes the `Exception` path. Benchmarking a
-lower frequency of failures can result in better performance for throwing exceptions versus `flags` (or in my
-case, `Either`)
-
 ## What is this project?
 
-I've never had the chance to play around with JMH before, but always wanted to try something with it. In addition to
-this, I was always taught that exceptions as control flow are bad because:
+I've never had the chance to play around with JMH before, but always wanted to try something with it. This project's
+motivation is practice using JMH comparing the usage of an `Either` type versus throwing an `Exception`. I chose this
+because I've always been taught exceptions as a control flow are bad because:
 
 1. unchecked exceptions don't force the caller to deal with error cases, this is fine because usually an author's intent
    of an unchecked exception is something they don't expect the caller to be able to handle.
 
-2. checked exceptions solve 1. in that they force me to deal with exceptions, but fall over when you come to want to
+2. checked exceptions solve 1. in that they force you to deal with exceptions, but fall over when you come to want to
    compose function calls and use lambdas.
 
 3. exceptions have a performance cost associated with them.
@@ -24,31 +17,27 @@ this, I was always taught that exceptions as control flow are bad because:
 In my personal experience, I've felt 1. and 2. when writing programs, but I've always just taken people's word for it on
 point 3.
 
-## So what does this project have to do with it?
+## What benchmarks are done here?
 
-I decided to explore point 3. myself with JMH, and this project is the result. The question I asked myself was this:
+Given point 3. above I want to answer the question:
 
 What performs better for error handling in Project Reactor? Kotlin Arrow's `Either<Throwable, *>`, or throwing
-the `Throwable`?
+the `Exception`?
 
-The test is pretty simple, create a mono from a supplier, handle any errors that come out of the supplier. The two
-different suppliers are, as you may have guessed, one which throws an exception and one which returns an Either. The
-thrown Exception automatically gets caught by Project Reactor and drops into the error handling. With Either it needs to
-be manually mapped into Project Reactor's error handling with an `Either.fold(Mono::error, Mono::just)`
-and `Mono.flatMap`.
+The test is pretty simple: have an error raised during a `Mono` by either throwing an `Exception`, or using an `Either`
+ with an `Either.fold(Mono::error, Mono::just)` and `Mono.flatMap`.
 
 ## Other parameters?
 
-In addition to comparing Either vs Throwing, this benchmark also compares what happens if we build Exceptions
-with/without filling in the stack trace, and how it varies with different stack depths.
+In addition to comparing returning an `Either` vs throwing an `Exception`, this benchmark also compares what happens if
+we skip filling in the stack trace, and vary the stack depth.
 
-## What did I expect?
+## A better analysis
 
-I expect the following:
-
-* Either performs better than Throwing
-* Filling in stack trace will cost a lot (relatively speaking)
-* The higher the stack depth, the worse it will be for both cases
+[This article](https://shipilev.net/blog/2014/exceptional-performance/#_conclusion) is fantastic and does a great job of
+analysing exception performance, even if I didn't fully understand it. This article analyses different rates of
+failure, and demonstrates how exceptions are rather performant if your code mostly takes the happy path,
+whereas my benchmarking here is analysing performance when every single call fails. 
 
 ## So... the results?
 
